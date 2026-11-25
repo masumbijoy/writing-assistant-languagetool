@@ -117,6 +117,10 @@ async function translateText(text, from, to) {
 const overlaps = (a, b) => a.offset < b.offset + b.length && b.offset < a.offset + a.length;
 
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+  if (msg.type === 'getShortcut') {
+    chrome.commands.getAll(cmds => { const c = cmds.find(x => x.name === 'toggle-voice'); sendResponse({ shortcut: c ? c.shortcut : '' }); });
+    return true;
+  }
   if (msg.type === 'translate') {
     translateText(msg.text, msg.from || 'bn', msg.to || 'en')
       .then(text => sendResponse({ ok: true, text }))
@@ -171,4 +175,11 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     })
     .catch(e => sendResponse({ ok: false, error: e.name === 'AbortError' ? 'Check timed out' : e.message === 'rate' ? 'Rate limit, keep typing to retry' : 'Check failed' }));
   return true;
+});
+
+// keyboard shortcut (default Cmd/Ctrl+Shift+Space, change at chrome://extensions/shortcuts):
+// tell every frame of the tab; only the frame holding the focused text field reacts
+chrome.commands.onCommand.addListener((command, tab) => {
+  if (command !== 'toggle-voice' || !tab || tab.id == null) return;
+  chrome.tabs.sendMessage(tab.id, { type: 'toggleVoice' }).catch(() => {}); // no content script on chrome:// pages etc.
 });

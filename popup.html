@@ -6,6 +6,9 @@ label{display:flex;align-items:center;gap:8px;margin:8px 0}
 label.b{display:block}
 select{width:100%;padding:5px;margin-top:4px;box-sizing:border-box}
 [hidden]{display:none!important}
+.sc{margin:8px 0;font-size:13px}
+kbd{font:12px ui-monospace,monospace;background:#f3f4f6;border:1px solid #d1d5db;border-radius:4px;padding:1px 5px}
+a{color:#2563eb}
 small{color:#6b7280;display:block;margin-top:10px;line-height:1.4}
 </style></head><body>
 <h1>Writing Assistant</h1>
@@ -16,6 +19,7 @@ small{color:#6b7280;display:block;margin-top:10px;line-height:1.4}
 <label><input type="checkbox" id="autoFix"> Auto-fix spelling mistakes</label>
 <label class="b">Voice language (mic button)
 <select id="voiceLang"><option value="bn-BD">Bangla (Bangladesh)</option><option value="bn-IN">Bangla (India)</option></select></label>
+<div class="sc">Voice shortcut: <kbd id="shortcut">not set</kbd> <a href="#" id="changeShortcut">Change</a></div>
 <label class="b">Text language
 <select id="language">
 <option value="auto">Auto-detect</option>

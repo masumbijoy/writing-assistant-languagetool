@@ -22,3 +22,10 @@ chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
     chrome.storage.sync.set({ disabledSites: list });
   }));
 });
+
+// voice shortcut: show the current keys; Chrome only lets users change them on its own shortcuts page
+chrome.commands.getAll(cmds => {
+  const c = cmds.find(x => x.name === 'toggle-voice');
+  if (c && c.shortcut) $('shortcut').textContent = c.shortcut;
+});
+$('changeShortcut').addEventListener('click', e => { e.preventDefault(); chrome.tabs.create({ url: 'chrome://extensions/shortcuts' }); });

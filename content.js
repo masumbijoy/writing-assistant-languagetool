@@ -383,7 +383,8 @@
   function placeMic(box, bw) {
     mic.style.display = 'flex';
     mic.className = 'mic ' + (voiceState === 'listening' ? 'on' : voiceState === 'busy' ? 'busy' : '');
-    mic.title = voiceState === 'listening' ? 'Listening... click to stop' : voiceState === 'busy' ? 'Translating...' : 'Speak Bangla - types English';
+    const sc = voiceShortcut ? ` (${voiceShortcut})` : '';
+    mic.title = voiceState === 'listening' ? `Listening... click to stop${sc}` : voiceState === 'busy' ? 'Translating...' : `Speak Bangla - types English${sc}`;
     const mw = mic.offsetWidth || 22, mh = mic.offsetHeight || 22;
     const cs = getComputedStyle(active);
     const lh = parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) || 16) * 1.3;
@@ -426,6 +427,20 @@
     else { const r = document.createRange(); r.selectNodeContents(el); r.collapse(false); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); before = cur.text; }
     document.execCommand('insertText', false, prepInsert(text, before));
   }
+  let voiceShortcut = '';
+  try { chrome.runtime.sendMessage({ type: 'getShortcut' }, r => { if (!chrome.runtime.lastError && r) voiceShortcut = r.shortcut || ''; }); } catch (_) {}
+  // keyboard shortcut from background.js: start in the focused field of this frame, or stop if this frame is listening
+  chrome.runtime.onMessage.addListener(msg => {
+    if (!msg || msg.type !== 'toggleVoice') return;
+    if (voiceState === 'listening') return stopVoice();
+    if (!document.hasFocus() || !isOn()) return;
+    const el = document.activeElement;
+    if (el !== active) {
+      if (!isEditable(el) || isSensitive(el)) return;
+      active = el; matches = []; status = ''; ensureUI(); schedule(300);
+    }
+    ensureUI(); toggleMic();
+  });
   let wantVoice = false, vq = Promise.resolve(), vPending = 0, vRestarts = [], voiceTarget = null;
   function voiceFail(msg) {
     wantVoice = false;
