@@ -11,4 +11,4 @@ cp manifest.json background.js content.js popup.html popup.js "$OUT"/
 cp -R icons "$OUT"/
 for f in "$OUT"/*.js; do node --check "$f"; done
 (cd "$OUT" && zip -qr -X "../writing-assistant-$VERSION.zip" .)
-echo "Built $VERSION: $OUT and dist/writing-assistant-$VERSION.zip"
+echo "Built $OUT and dist/writing-assistant-$VERSION.zip"

@@ -1,5 +1,4 @@
 const $ = id => document.getElementById(id);
-{ const m = chrome.runtime.getManifest(); $('ver').textContent = 'v' + m.version; }
 chrome.storage.sync.get(null, s => {
   for (const k of ['enabled', 'tone', 'picky', 'autoFix']) $(k).checked = s[k] === undefined ? k !== 'autoFix' : s[k];
   $('voiceLang').value = s.voiceLang || 'bn-BD';
@@ -23,5 +22,3 @@ chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
     chrome.storage.sync.set({ disabledSites: list });
   }));
 });
-
-

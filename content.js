@@ -383,7 +383,7 @@
   function placeMic(box, bw) {
     mic.style.display = 'flex';
     mic.className = 'mic ' + (voiceState === 'listening' ? 'on' : voiceState === 'busy' ? 'busy' : '');
-    mic.title = voiceState === 'listening' ? 'Listening... click to stop' : voiceState === 'busy' ? 'Translating...' : `Speak Bangla - types English · v${VERSION}`;
+    mic.title = voiceState === 'listening' ? 'Listening... click to stop' : voiceState === 'busy' ? 'Translating...' : 'Speak Bangla - types English';
     const mw = mic.offsetWidth || 22, mh = mic.offsetHeight || 22;
     const cs = getComputedStyle(active);
     const lh = parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) || 16) * 1.3;
@@ -426,7 +426,6 @@
     else { const r = document.createRange(); r.selectNodeContents(el); r.collapse(false); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); before = cur.text; }
     document.execCommand('insertText', false, prepInsert(text, before));
   }
-  const VERSION = (() => { try { return chrome.runtime.getManifest().version; } catch (_) { return '?'; } })();
   let wantVoice = false, vq = Promise.resolve(), vPending = 0, vRestarts = [], voiceTarget = null;
   function voiceFail(msg) {
     wantVoice = false;
