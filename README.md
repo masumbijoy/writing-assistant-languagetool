@@ -12,11 +12,20 @@ A Manifest V3 Chrome extension that checks spelling, grammar and style as you ty
 - **Voice input**: speak Bangla (bn-BD / bn-IN), English text is typed at the cursor (Chrome speech recognition + MyMemory translation).
 - Language: auto-detect, English (US/UK), German, French, Spanish. Mostly non-Latin text is skipped in auto mode.
 
+## Build
+
+```bash
+./build.sh
+```
+
+Creates `dist/writing-assistant/` (only the extension files) and `dist/writing-assistant-<version>.zip`.
+
 ## Install (developer mode)
 
-1. Open `chrome://extensions` and turn on **Developer mode**.
-2. Click **Load unpacked** and select this folder.
-3. Use the toolbar popup to toggle features, pick languages, or turn checking off for the current site.
+1. Run `./build.sh` (or skip it and use this folder directly).
+2. Open `chrome://extensions` and turn on **Developer mode**.
+3. Click **Load unpacked** and select `dist/writing-assistant`.
+4. Use the toolbar popup to toggle features, pick languages, or turn checking off for the current site.
 
 ## Files
 
