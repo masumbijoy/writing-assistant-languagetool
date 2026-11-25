@@ -449,12 +449,33 @@
     ensureUI(); toggleMic();
   }, true);
   let wantVoice = false, vq = Promise.resolve(), vPending = 0, vRestarts = [], voiceTarget = null;
+  // ---- extension-side voice: used when the site forbids the mic (Permissions-Policy: microphone=()),
+  // or when the page itself is refused; recognition then runs in the extension's offscreen page
+  let remote = false;
+  const policyBlocked = () => { try { const p = document.permissionsPolicy || document.featurePolicy; return !!p && !p.allowsFeature('microphone'); } catch (_) { return false; } };
+  function startRemote() {
+    remote = true; wantVoice = true; voiceTarget = active; status = ''; voiceState = 'listening'; render();
+    chrome.runtime.sendMessage({ type: 'voiceStart', lang: settings.voiceLang || 'bn-BD' }, res => {
+      if (chrome.runtime.lastError || !res || !res.ok) voiceFail((res && res.error) || 'Could not start voice');
+    });
+  }
+  chrome.runtime.onMessage.addListener(msg => {
+    if (!msg || !remote) return;
+    if (msg.type === 'voiceResult') { if (wantVoice && msg.text) queueTranslate(msg.text); }
+    else if (msg.type === 'voiceError') voiceFail(msg.error);
+    else if (msg.type === 'voiceEnd') { remote = false; wantVoice = false; voiceState = vPending > 0 ? 'busy' : ''; render(); }
+  });
   function voiceFail(msg) {
     wantVoice = false;
+    if (remote) { remote = false; try { chrome.runtime.sendMessage({ type: 'voiceStop' }); } catch (_) {} }
     try { if (rec) rec.abort(); } catch (_) {}
     voiceState = vPending > 0 ? 'busy' : ''; status = 'warn:' + msg; render();
   }
-  function stopVoice() { wantVoice = false; try { if (rec) rec.stop(); } catch (_) {} }
+  function stopVoice() {
+    wantVoice = false;
+    if (remote) { remote = false; try { chrome.runtime.sendMessage({ type: 'voiceStop' }); } catch (_) {} voiceState = vPending > 0 ? 'busy' : ''; render(); return; }
+    try { if (rec) rec.stop(); } catch (_) {}
+  }
   function queueTranslate(t) {
     vPending++;
     vq = vq.then(() => new Promise(done => {
@@ -471,8 +492,8 @@
     if (voiceState === 'listening') return stopVoice();   // click again = stop
     if (voiceState) return;
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) return voiceFail('Voice input is not supported on this page');
     if (!active) return;
+    if (!SR || policyBlocked()) return startRemote(); // the site blocks the mic: use the extension's own mic
     voiceTarget = active; wantVoice = true; vRestarts = []; status = '';
     const begin = () => {
       rec = new SR();
@@ -485,9 +506,11 @@
       };
       rec.onerror = e => {
         if (e.error === 'no-speech' || e.error === 'aborted') return; // harmless: we restart below
+        if (e.error === 'not-allowed' && !remote) { wantVoice = false; try { rec.abort(); } catch (_) {} return startRemote(); } // page refused: try the extension's mic
         voiceFail(e.error === 'not-allowed' || e.error === 'service-not-allowed' ? 'Microphone blocked - allow the mic for this site' : e.error === 'network' ? 'Voice needs an internet connection' : 'Voice error: ' + e.error);
       };
       rec.onend = () => {
+        if (remote) return; // switched to the extension's mic
         if (wantVoice) { // Chrome ends sessions after silence; quietly start a new one so it never stops until you click
           const now = Date.now(); vRestarts = vRestarts.filter(t => now - t < 5000); vRestarts.push(now);
           if (vRestarts.length > 6) return voiceFail('Microphone keeps stopping - click the mic to try again');

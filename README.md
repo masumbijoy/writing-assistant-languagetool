@@ -9,7 +9,7 @@ A Manifest V3 Chrome extension that checks spelling, grammar and style as you ty
 - **Badge + panel** showing the issue count, with per-item fixes and **Fix all**.
 - **Professional & polite tone** rules (English only): informal words → formal, contractions → full forms, softer requests, adds "please" to bare imperatives.
 - **Picky mode** (LanguageTool `level=picky`) and optional **auto-fix of spelling** mistakes.
-- **Voice input**: speak Bangla (bn-BD / bn-IN), English text is typed at the cursor (Chrome speech recognition + MyMemory translation). Click the blue mic, or press **⌘⇧Space** (Mac) / **Ctrl+Shift+Space** (Windows/Linux) in a text field to start and stop. Pick another shortcut, or turn it off, in the popup.
+- **Voice input**: speak Bangla (bn-BD / bn-IN), English text is typed at the cursor (Chrome speech recognition + MyMemory translation). Click the blue mic, or press **⌘⇧Space** (Mac) / **Ctrl+Shift+Space** (Windows/Linux) in a text field to start and stop. Pick another shortcut, or turn it off, in the popup. On sites that forbid the microphone (they send `Permissions-Policy: microphone=()`), voice runs in the extension's own hidden page instead; the first time, a tab opens asking you to allow the microphone for the extension.
 - Language: auto-detect, English (US/UK), German, French, Spanish. Mostly non-Latin text is skipped in auto mode.
 
 ## Build
@@ -34,6 +34,8 @@ Creates `dist/writing-assistant/` (only the extension files) and `dist/writing-a
 | `manifest.json` | MV3 manifest: `storage` permission, host access to LanguageTool and MyMemory, content script on all URLs |
 | `background.js` | Service worker: calls LanguageTool, filters unreliable spelling hits, adds tone rules, proxies translation |
 | `content.js` | Text extraction/DOM mapping, underline geometry, safe replacement in plain and rich editors, badge/panel/popover UI (Shadow DOM), voice input |
+| `offscreen.html` / `offscreen.js` | Speech recognition in the extension's own page, used where the site blocks the mic |
+| `mic.html` / `mic.js` | One-time page to allow the microphone for the extension |
 | `popup.html` / `popup.js` | Settings UI stored in `chrome.storage.sync` |
 | `icons/` | 16/32/48/128 px icons |
 
