@@ -26,29 +26,40 @@ chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
 
 
 
-// ---- custom voice shortcut: click the box, press any combination ----
-const DEFAULT_KEY = SC_MAC ? 'shift+meta+Space' : 'ctrl+shift+Space';
+// ---- custom voice shortcuts: click a box, press any combination ----
 const RESERVED = { 'meta+Space': 'macOS Spotlight', 'ctrl+Space': 'macOS input switching', 'meta+KeyQ': 'Quit Chrome', 'meta+KeyW': 'Close tab',
   'ctrl+KeyW': 'Close tab', 'meta+KeyT': 'New tab', 'ctrl+KeyT': 'New tab', 'meta+KeyN': 'New window', 'ctrl+KeyN': 'New window',
   'meta+KeyC': 'Copy', 'ctrl+KeyC': 'Copy', 'meta+KeyV': 'Paste', 'ctrl+KeyV': 'Paste', 'meta+KeyX': 'Cut', 'ctrl+KeyX': 'Cut',
   'meta+KeyA': 'Select all', 'ctrl+KeyA': 'Select all', 'meta+KeyZ': 'Undo', 'ctrl+KeyZ': 'Undo', 'meta+Tab': 'App switcher', 'alt+Tab': 'App switcher' };
-let recording = false;
-const hint = (t, err) => { $('scMsg').textContent = t || ''; $('scMsg').className = 'hint' + (err ? ' err' : ''); };
-const show = k => { $('scBox').textContent = scLabel(k); $('scBox').classList.remove('on'); recording = false; };
-const save = k => chrome.storage.sync.set({ voiceKey: k }, () => { show(k); hint(k === 'off' ? 'Shortcut is off. Use the blue mic button.' : 'Saved. Reload open tabs to use it there.'); });
-chrome.storage.sync.get({ voiceKey: DEFAULT_KEY }, s => show(s.voiceKey));
-$('scBox').addEventListener('click', () => { recording = true; $('scBox').textContent = 'Press keys…'; $('scBox').classList.add('on'); hint('Press Esc to cancel'); });
-$('scOff').addEventListener('click', () => save('off'));
-$('scReset').addEventListener('click', () => save(DEFAULT_KEY));
+const RECORDERS = [
+  { key: 'voiceKey', def: SC_MAC ? 'shift+meta+Space' : 'ctrl+shift+Space', box: 'scBox', off: 'scOff', reset: 'scReset', msg: 'scMsg', other: 'voiceKeyBn' },
+  { key: 'voiceKeyBn', def: SC_DEFAULT_BN, box: 'scBoxBn', off: 'scOffBn', reset: 'scResetBn', msg: 'scMsgBn', other: 'voiceKey' }
+];
+let recording = null; // the recorder waiting for keys
+const hint = (r, t, err) => { $(r.msg).textContent = t || ''; $(r.msg).className = 'hint' + (err ? ' err' : ''); };
+const show = (r, k) => { $(r.box).textContent = scLabel(k); $(r.box).classList.remove('on'); if (recording === r) recording = null; };
+const current = (r, cb) => chrome.storage.sync.get({ [r.key]: r.def }, s => cb(s[r.key]));
+const save = (r, k) => chrome.storage.sync.set({ [r.key]: k }, () => { show(r, k); hint(r, k === 'off' ? 'Shortcut is off.' : 'Saved. Reload open tabs to use it there.'); });
+for (const r of RECORDERS) {
+  current(r, k => show(r, k));
+  $(r.box).addEventListener('click', () => {
+    if (recording && recording !== r) { current(recording, k => show(recording, k)); hint(recording, ''); }
+    recording = r; $(r.box).textContent = 'Press keys…'; $(r.box).classList.add('on'); hint(r, 'Press Esc to cancel');
+  });
+  $(r.off).addEventListener('click', () => save(r, 'off'));
+  $(r.reset).addEventListener('click', () => save(r, r.def));
+}
 document.addEventListener('keydown', e => {
-  if (!recording) return;
+  const r = recording;
+  if (!r) return;
   e.preventDefault(); e.stopPropagation();
-  if (e.key === 'Escape') { chrome.storage.sync.get({ voiceKey: DEFAULT_KEY }, s => show(s.voiceKey)); return hint(''); }
+  if (e.key === 'Escape') { current(r, k => show(r, k)); return hint(r, ''); }
   if (['Control', 'Alt', 'Shift', 'Meta', 'OS', 'CapsLock', 'Fn'].includes(e.key)) return; // wait for the main key
   const k = scFromEvent(e);
   const fn = /^F([1-9]|1[0-9])$/.test(e.code);
-  if (!fn && !(e.ctrlKey || e.altKey || e.metaKey)) return hint('Use Ctrl, ' + (SC_MAC ? '⌥ Option or ⌘ Cmd' : 'Alt or Win') + ' with a key (or an F-key), so normal typing is not taken over', true);
+  if (!fn && !(e.ctrlKey || e.altKey || e.metaKey)) return hint(r, 'Use Ctrl, ' + (SC_MAC ? '⌥ Option or ⌘ Cmd' : 'Alt or Win') + ' with a key (or an F-key), so normal typing is not taken over', true);
   const bare = k.replace(/^(shift\+)/, '').replace(/\+shift\+/, '+');
-  if (RESERVED[k] || RESERVED[bare] && !e.shiftKey) return hint(scLabel(k) + ' is used by ' + (RESERVED[k] || RESERVED[bare]) + '. Try another.', true);
-  save(k);
+  if (RESERVED[k] || RESERVED[bare] && !e.shiftKey) return hint(r, scLabel(k) + ' is used by ' + (RESERVED[k] || RESERVED[bare]) + '. Try another.', true);
+  const o = RECORDERS.find(x => x.key === r.other);
+  current(o, ok => { if (scNormalize(ok) === k) return hint(r, scLabel(k) + ' is already your other voice shortcut. Try another.', true); save(r, k); });
 }, true);

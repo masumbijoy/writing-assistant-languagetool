@@ -2,6 +2,7 @@
 const SC_MAC = /Mac|iPhone|iPad/.test(navigator.platform);
 const SC_MODS = ['ctrl', 'alt', 'shift', 'meta'];
 const SC_LEGACY = { 'mod+shift+space': SC_MAC ? 'shift+meta+Space' : 'ctrl+shift+Space', 'alt+shift+v': 'alt+shift+KeyV', 'ctrl+shift+m': 'ctrl+shift+KeyM' };
+const SC_DEFAULT_BN = SC_MAC ? 'shift+meta+KeyB' : 'ctrl+shift+KeyB'; // Bangla-text voice
 const scNormalize = s => SC_LEGACY[s] || s || 'off';
 const scFromEvent = e => [...SC_MODS.filter(m => e[m + 'Key']), e.code].join('+');
 const scMatches = (s, e) => { s = scNormalize(s); return s !== 'off' && s === scFromEvent(e); };

@@ -274,7 +274,7 @@
     layer = root.getElementById('layer'); badge = root.getElementById('b'); panel = root.getElementById('p'); pop = root.getElementById('pop');
     mic = root.getElementById('mic');
     mic.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>';
-    mic.addEventListener('click', toggleMic);
+    mic.addEventListener('click', () => toggleMic());
     for (const el of [badge, panel, pop, mic]) el.addEventListener('mousedown', e => { if (e.target.tagName !== 'INPUT') e.preventDefault(); });
     badge.addEventListener('click', () => { closePop(); panel.hidden = !panel.hidden; render(); });
     document.documentElement.appendChild(host);
@@ -383,8 +383,9 @@
   function placeMic(box, bw) {
     mic.style.display = 'flex';
     mic.className = 'mic ' + (voiceState === 'listening' ? 'on' : voiceState === 'busy' ? 'busy' : '');
-    const sc = voiceShortcut() ? ` (${voiceShortcut()})` : '';
-    mic.title = voiceState === 'listening' ? `Listening... click to stop${sc}` : voiceState === 'busy' ? 'Translating...' : `Speak Bangla - types English${sc} · v${VERSION}`;
+    const sc = voiceShortcut() ? ` (${voiceShortcut()})` : '', scBn = voiceShortcutBn() ? `, Bangla text: ${voiceShortcutBn()}` : '';
+    mic.title = voiceState === 'listening' ? (voiceMode === 'bangla' ? 'Listening (Bangla text)... click to stop' : `Listening... click to stop${sc}`)
+      : voiceState === 'busy' ? 'Translating...' : `Speak Bangla - types English${sc}${scBn} · v${VERSION}`;
     const mw = mic.offsetWidth || 22, mh = mic.offsetHeight || 22;
     const cs = getComputedStyle(active);
     const lh = parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) || 16) * 1.3;
@@ -431,16 +432,23 @@
   // voice shortcut, handled inside the page: a real keypress counts as a user action, so Chrome lets the mic start
   // (an extension command does not reach the page, and Chrome then refuses the mic with "not-allowed")
   // the key combination is recorded in the popup (any combination); helpers live in shortcut.js
-  const voiceShortcut = () => { const l = scLabel(settings.voiceKey); return l === 'Off' ? '' : l; };
+  // two shortcuts: voiceKey = speak Bangla, type English (translated); voiceKeyBn = speak Bangla, type Bangla
+  const scText = k => { const l = scLabel(k); return l === 'Off' ? '' : l; };
+  const voiceShortcut = () => scText(settings.voiceKey);
+  const voiceShortcutBn = () => scText(settings.voiceKeyBn === undefined ? SC_DEFAULT_BN : settings.voiceKeyBn);
   document.addEventListener('keydown', e => {
-    if (e.repeat || !scMatches(settings.voiceKey, e)) return;
-    if (voiceState === 'listening') { e.preventDefault(); e.stopPropagation(); return stopVoice(); }
+    if (e.repeat) return;
+    const mode = scMatches(settings.voiceKey, e) ? 'translate'
+      : scMatches(settings.voiceKeyBn === undefined ? SC_DEFAULT_BN : settings.voiceKeyBn, e) ? 'bangla' : null;
+    if (!mode) return;
+    if (voiceState === 'listening') { e.preventDefault(); e.stopPropagation(); return stopVoice(); } // either shortcut stops
     const el = e.target;
     if (!isOn() || !isEditable(el) || isSensitive(el)) return;
     e.preventDefault(); e.stopPropagation();
     if (el !== active) { active = el; matches = []; status = ''; schedule(300); }
-    ensureUI(); toggleMic();
+    ensureUI(); toggleMic(mode);
   }, true);
+  let voiceMode = 'translate';
   let wantVoice = false, vq = Promise.resolve(), vPending = 0, vRestarts = [], voiceTarget = null;
   function voiceFail(msg) {
     wantVoice = false;
@@ -460,20 +468,26 @@
       });
     }));
   }
-  function toggleMic() {
+  // Bangla mode types the Bangla words as heard, in order with any pending translations
+  function typeVoice(t) {
+    if (voiceMode !== 'bangla') return queueTranslate(t);
+    vq = vq.then(() => { try { insertAtCaret(voiceTarget, t); status = ''; } catch (_) {} schedule(700); render(); });
+  }
+  function toggleMic(mode) {
     if (voiceState === 'listening') return stopVoice();   // click again = stop
     if (voiceState) return;
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) return voiceFail('Voice input is not supported on this page');
     if (!active) return;
     voiceTarget = active; wantVoice = true; vRestarts = []; status = '';
+    voiceMode = mode === 'bangla' ? 'bangla' : 'translate'; // the mic button (no mode) keeps translating to English
     const begin = () => {
       rec = new SR();
       rec.lang = settings.voiceLang || 'bn-BD';
       rec.continuous = true; rec.interimResults = false; rec.maxAlternatives = 1;
       rec.onresult = e => {
         for (let i = e.resultIndex; i < e.results.length; i++) {
-          if (e.results[i].isFinal) { const t = e.results[i][0].transcript.trim(); if (t) queueTranslate(t); } // typed as you speak, phrase by phrase
+          if (e.results[i].isFinal) { const t = e.results[i][0].transcript.trim(); if (t) typeVoice(t); } // typed as you speak, phrase by phrase
         }
       };
       rec.onerror = e => {

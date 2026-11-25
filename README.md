@@ -9,7 +9,7 @@ A Manifest V3 Chrome extension that checks spelling, grammar and style as you ty
 - **Badge + panel** showing the issue count, with per-item fixes and **Fix all**.
 - **Professional & polite tone** rules (English only): informal words → formal, contractions → full forms, softer requests, adds "please" to bare imperatives.
 - **Picky mode** (LanguageTool `level=picky`) and optional **auto-fix of spelling** mistakes.
-- **Voice input**: speak Bangla (bn-BD / bn-IN), English text is typed at the cursor (Chrome speech recognition + MyMemory translation). Click the blue mic, or press **⌘⇧Space** (Mac) / **Ctrl+Shift+Space** (Windows/Linux) in a text field to start and stop. To use your own shortcut, open the popup, click the shortcut box and press any combination (with Ctrl, Alt/Option or Cmd, or an F-key); **Turn off** and **Reset** are next to it.
+- **Voice input**: speak Bangla (bn-BD / bn-IN); English text (translated) or Bangla text is typed at the cursor (Chrome speech recognition + MyMemory translation). Click the blue mic, or press **⌘⇧Space** (Mac) / **Ctrl+Shift+Space** (Windows/Linux) in a text field to start and stop. A second shortcut, **⇧⌘B** (Mac) / **Ctrl+Shift+B** by default, types what you say in **Bangla** without translating. To use your own shortcuts, open the popup, click a shortcut box and press any combination (with Ctrl, Alt/Option or Cmd, or an F-key); **Turn off** and **Reset** are next to it.
 - Language: auto-detect, English (US/UK), German, French, Spanish. Mostly non-Latin text is skipped in auto mode.
 
 ## Build
