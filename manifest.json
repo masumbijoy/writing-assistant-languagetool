@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Writing Assistant",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "Checks spelling, grammar and style as you type in any text box, with one-click fixes.",
   "permissions": [
     "storage",

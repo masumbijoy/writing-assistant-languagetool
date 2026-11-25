@@ -3,7 +3,7 @@
 (() => {
   if (window.top !== window) return;
   let wrap = null, frame = null;
-  const W = 370;
+  const W = 392; // same size and edge as the WP Image Grabber panel
   function close() {
     if (!wrap) return;
     wrap.remove(); wrap = frame = null;
@@ -12,7 +12,7 @@
   function onMsg(e) {
     if (!frame || e.source !== frame.contentWindow || !e.data || !e.data.wa) return;
     if (e.data.wa === 'close') close();
-    else if (e.data.wa === 'size') frame.style.height = Math.min(e.data.h, innerHeight - 24) + 'px';
+    else if (e.data.wa === 'size') frame.style.height = Math.min(e.data.h + 2, innerHeight * 0.92) + 'px'; // +2 for the border
   }
   const onOutside = e => { if (wrap && !e.composedPath().includes(wrap)) close(); };
   const onKey = e => { if (e.key === 'Escape') close(); };
@@ -23,9 +23,11 @@
     frame = document.createElement('iframe');
     frame.src = chrome.runtime.getURL('popup.html?panel=1');
     frame.allow = '';
-    frame.style.cssText = `display:block;width:${W}px;height:520px;max-height:calc(100vh - 24px);border:0;border-radius:16px;` +
-      'box-shadow:0 12px 40px rgba(0,0,0,.28),0 0 0 1px rgba(0,0,0,.08);background:transparent;color-scheme:normal;overflow:hidden;';
-    root.appendChild(frame);
+    const st = document.createElement('style');
+    st.textContent = `iframe{display:block;width:${W}px;height:520px;max-height:92vh;border:1px solid #d0d0d5;border-radius:12px;` +
+      'box-shadow:0 10px 40px rgba(0,0,0,.25);background:#fff;color-scheme:normal;overflow:hidden}' +
+      '@media (prefers-color-scheme:dark){iframe{border-color:#3a3a40;background:#1f1f23}}';
+    root.append(st, frame);
     document.documentElement.appendChild(wrap);
     addEventListener('message', onMsg);
     document.addEventListener('mousedown', onOutside, true);
