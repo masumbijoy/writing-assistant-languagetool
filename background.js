@@ -116,43 +116,7 @@ async function translateText(text, from, to) {
 
 const overlaps = (a, b) => a.offset < b.offset + b.length && b.offset < a.offset + a.length;
 
-// ---- voice via the offscreen page (for sites that forbid the microphone) ----
-let voiceClient = null; // { tabId, frameId } that asked for voice
-const toClient = m => { if (voiceClient) chrome.tabs.sendMessage(voiceClient.tabId, m, { frameId: voiceClient.frameId }).catch(() => {}); };
-async function ensureOffscreen() {
-  if (await chrome.offscreen.hasDocument()) return;
-  await chrome.offscreen.createDocument({ url: 'offscreen.html', reasons: ['USER_MEDIA'], justification: 'Speech recognition for voice typing on sites that block the microphone' });
-}
-
-chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  if (msg.target === 'offscreen') return; // meant for the offscreen page
-  if (msg.from === 'offscreen') {
-    if (msg.type === 'result') toClient({ type: 'voiceResult', text: msg.text });
-    else if (msg.type === 'end') { toClient({ type: 'voiceEnd' }); voiceClient = null; }
-    else if (msg.type === 'error') {
-      if (msg.error === 'not-allowed') { // the extension has no mic permission yet: one-time setup tab
-        chrome.tabs.create({ url: 'mic.html' });
-        toClient({ type: 'voiceError', error: 'Allow the microphone in the tab that just opened, then try again' });
-      } else toClient({ type: 'voiceError', error: msg.error === 'network' ? 'Voice needs an internet connection' : 'Voice error: ' + msg.error });
-      voiceClient = null;
-    }
-    return;
-  }
-  if (msg.type === 'voiceStart') {
-    if (!sender.tab) return;
-    if (voiceClient && (voiceClient.tabId !== sender.tab.id || voiceClient.frameId !== sender.frameId)) toClient({ type: 'voiceEnd' }); // one listener at a time
-    voiceClient = { tabId: sender.tab.id, frameId: sender.frameId };
-    ensureOffscreen()
-      .then(() => chrome.runtime.sendMessage({ target: 'offscreen', type: 'start', lang: msg.lang }))
-      .then(() => sendResponse({ ok: true }))
-      .catch(() => { voiceClient = null; sendResponse({ ok: false, error: 'Could not start voice' }); });
-    return true;
-  }
-  if (msg.type === 'voiceStop') {
-    voiceClient = null;
-    chrome.runtime.sendMessage({ target: 'offscreen', type: 'stop' }).catch(() => {});
-    return;
-  }
+chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg.type === 'translate') {
     translateText(msg.text, msg.from || 'bn', msg.to || 'en')
       .then(text => sendResponse({ ok: true, text }))

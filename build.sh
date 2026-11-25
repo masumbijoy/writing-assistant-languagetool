@@ -7,7 +7,7 @@ cd "$(dirname "$0")"
 VERSION=$(python3 -c "import json;print(json.load(open('manifest.json'))['version'])")
 OUT=dist/writing-assistant
 rm -rf dist && mkdir -p "$OUT"
-cp manifest.json background.js content.js popup.html popup.js offscreen.html offscreen.js mic.html mic.js "$OUT"/
+cp manifest.json background.js content.js popup.html popup.js "$OUT"/
 cp -R icons "$OUT"/
 for f in "$OUT"/*.js; do node --check "$f"; done
 (cd "$OUT" && zip -qr -X "../writing-assistant-$VERSION.zip" .)
