@@ -1,5 +1,5 @@
 (() => {
-  let settings = { enabled: true, picky: true, autoFix: false, tone: true, voiceLang: 'bn-BD', language: 'auto', disabledSites: [], voiceKey: 'mod+shift+space' };
+  let settings = { enabled: true, picky: true, autoFix: false, tone: true, voiceLang: 'bn-BD', language: 'auto', disabledSites: [] };
   // the top page's host, also inside cross-origin iframes, so "off on this site" covers embedded editors too
   const SITE = (() => {
     try { const a = location.ancestorOrigins; return new URL(a && a.length ? a[a.length - 1] : location.href).hostname; } catch (_) { return location.hostname; }
@@ -383,8 +383,7 @@
   function placeMic(box, bw) {
     mic.style.display = 'flex';
     mic.className = 'mic ' + (voiceState === 'listening' ? 'on' : voiceState === 'busy' ? 'busy' : '');
-    const sc = voiceShortcut() ? ` (${voiceShortcut()})` : '';
-    mic.title = voiceState === 'listening' ? `Listening... click to stop${sc}` : voiceState === 'busy' ? 'Translating...' : `Speak Bangla - types English${sc} · v${VERSION}`;
+    mic.title = voiceState === 'listening' ? 'Listening... click to stop' : voiceState === 'busy' ? 'Translating...' : `Speak Bangla - types English · v${VERSION}`;
     const mw = mic.offsetWidth || 22, mh = mic.offsetHeight || 22;
     const cs = getComputedStyle(active);
     const lh = parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) || 16) * 1.3;
@@ -428,26 +427,6 @@
     document.execCommand('insertText', false, prepInsert(text, before));
   }
   const VERSION = (() => { try { return chrome.runtime.getManifest().version; } catch (_) { return '?'; } })();
-  // voice shortcut, handled inside the page: a real keypress counts as a user action, so Chrome lets the mic start
-  // (an extension command does not reach the page, and Chrome then refuses the mic with "not-allowed")
-  const MAC = /Mac|iPhone|iPad/.test(navigator.platform);
-  const KEYS = {
-    'mod+shift+space': { label: MAC ? '⌘⇧Space' : 'Ctrl+Shift+Space', test: e => e.code === 'Space' && e.shiftKey && !e.altKey && (MAC ? e.metaKey && !e.ctrlKey : e.ctrlKey && !e.metaKey) },
-    'alt+shift+v': { label: MAC ? '⌥⇧V' : 'Alt+Shift+V', test: e => e.code === 'KeyV' && e.altKey && e.shiftKey && !e.metaKey && !e.ctrlKey },
-    'ctrl+shift+m': { label: MAC ? '⌃⇧M' : 'Ctrl+Shift+M', test: e => e.code === 'KeyM' && e.ctrlKey && e.shiftKey && !e.metaKey && !e.altKey }
-  };
-  const voiceKey = () => KEYS[settings.voiceKey] || null;
-  const voiceShortcut = () => (voiceKey() || {}).label || '';
-  document.addEventListener('keydown', e => {
-    const k = voiceKey();
-    if (!k || e.repeat || !k.test(e)) return;
-    if (voiceState === 'listening') { e.preventDefault(); e.stopPropagation(); return stopVoice(); }
-    const el = e.target;
-    if (!isOn() || !isEditable(el) || isSensitive(el)) return;
-    e.preventDefault(); e.stopPropagation();
-    if (el !== active) { active = el; matches = []; status = ''; schedule(300); }
-    ensureUI(); toggleMic();
-  }, true);
   let wantVoice = false, vq = Promise.resolve(), vPending = 0, vRestarts = [], voiceTarget = null;
   function voiceFail(msg) {
     wantVoice = false;
