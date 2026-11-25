@@ -430,17 +430,10 @@
   const VERSION = (() => { try { return chrome.runtime.getManifest().version; } catch (_) { return '?'; } })();
   // voice shortcut, handled inside the page: a real keypress counts as a user action, so Chrome lets the mic start
   // (an extension command does not reach the page, and Chrome then refuses the mic with "not-allowed")
-  const MAC = /Mac|iPhone|iPad/.test(navigator.platform);
-  const KEYS = {
-    'mod+shift+space': { label: MAC ? '⌘⇧Space' : 'Ctrl+Shift+Space', test: e => e.code === 'Space' && e.shiftKey && !e.altKey && (MAC ? e.metaKey && !e.ctrlKey : e.ctrlKey && !e.metaKey) },
-    'alt+shift+v': { label: MAC ? '⌥⇧V' : 'Alt+Shift+V', test: e => e.code === 'KeyV' && e.altKey && e.shiftKey && !e.metaKey && !e.ctrlKey },
-    'ctrl+shift+m': { label: MAC ? '⌃⇧M' : 'Ctrl+Shift+M', test: e => e.code === 'KeyM' && e.ctrlKey && e.shiftKey && !e.metaKey && !e.altKey }
-  };
-  const voiceKey = () => KEYS[settings.voiceKey] || null;
-  const voiceShortcut = () => (voiceKey() || {}).label || '';
+  // the key combination is recorded in the popup (any combination); helpers live in shortcut.js
+  const voiceShortcut = () => { const l = scLabel(settings.voiceKey); return l === 'Off' ? '' : l; };
   document.addEventListener('keydown', e => {
-    const k = voiceKey();
-    if (!k || e.repeat || !k.test(e)) return;
+    if (e.repeat || !scMatches(settings.voiceKey, e)) return;
     if (voiceState === 'listening') { e.preventDefault(); e.stopPropagation(); return stopVoice(); }
     const el = e.target;
     if (!isOn() || !isEditable(el) || isSensitive(el)) return;

@@ -9,7 +9,7 @@ A Manifest V3 Chrome extension that checks spelling, grammar and style as you ty
 - **Badge + panel** showing the issue count, with per-item fixes and **Fix all**.
 - **Professional & polite tone** rules (English only): informal words → formal, contractions → full forms, softer requests, adds "please" to bare imperatives.
 - **Picky mode** (LanguageTool `level=picky`) and optional **auto-fix of spelling** mistakes.
-- **Voice input**: speak Bangla (bn-BD / bn-IN), English text is typed at the cursor (Chrome speech recognition + MyMemory translation). Click the blue mic, or press **⌘⇧Space** (Mac) / **Ctrl+Shift+Space** (Windows/Linux) in a text field to start and stop. Pick another shortcut, or turn it off, in the popup.
+- **Voice input**: speak Bangla (bn-BD / bn-IN), English text is typed at the cursor (Chrome speech recognition + MyMemory translation). Click the blue mic, or press **⌘⇧Space** (Mac) / **Ctrl+Shift+Space** (Windows/Linux) in a text field to start and stop. To use your own shortcut, open the popup, click the shortcut box and press any combination (with Ctrl, Alt/Option or Cmd, or an F-key); **Turn off** and **Reset** are next to it.
 - Language: auto-detect, English (US/UK), German, French, Spanish. Mostly non-Latin text is skipped in auto mode.
 
 ## Build
@@ -33,6 +33,7 @@ Creates `dist/writing-assistant/` (only the extension files) and `dist/writing-a
 |---|---|
 | `manifest.json` | MV3 manifest: `storage` permission, host access to LanguageTool and MyMemory, content script on all URLs |
 | `background.js` | Service worker: calls LanguageTool, filters unreliable spelling hits, adds tone rules, proxies translation |
+| `shortcut.js` | Shared helpers to record, match and display the custom voice shortcut |
 | `content.js` | Text extraction/DOM mapping, underline geometry, safe replacement in plain and rich editors, badge/panel/popover UI (Shadow DOM), voice input |
 | `popup.html` / `popup.js` | Settings UI stored in `chrome.storage.sync` |
 | `icons/` | 16/32/48/128 px icons |

@@ -6,6 +6,13 @@ label{display:flex;align-items:center;gap:8px;margin:8px 0}
 label.b{display:block}
 select{width:100%;padding:5px;margin-top:4px;box-sizing:border-box}
 [hidden]{display:none!important}
+.b{margin:8px 0}
+.rec{display:flex;align-items:center;gap:8px;margin-top:4px}
+.key{flex:1;font:13px ui-monospace,monospace;padding:6px;border:1px solid #d1d5db;border-radius:6px;background:#f9fafb;cursor:pointer;text-align:center}
+.key.on{border-color:#2563eb;background:#eff6ff;color:#1d4ed8}
+.lnk{border:0;background:none;color:#2563eb;cursor:pointer;font-size:12px;padding:0}
+.hint{font-size:11px;color:#6b7280;margin-top:3px;min-height:13px}
+.hint.err{color:#dc2626}
 small{color:#6b7280;display:block;margin-top:10px;line-height:1.4}
 </style></head><body>
 <h1>Writing Assistant <span id="ver" style="display:block;margin-top:2px;font-weight:400;font-size:11px;color:#6b7280"></span></h1>
@@ -16,8 +23,9 @@ small{color:#6b7280;display:block;margin-top:10px;line-height:1.4}
 <label><input type="checkbox" id="autoFix"> Auto-fix spelling mistakes</label>
 <label class="b">Voice language (mic button)
 <select id="voiceLang"><option value="bn-BD">Bangla (Bangladesh)</option><option value="bn-IN">Bangla (India)</option></select></label>
-<label class="b">Voice shortcut (in a text box)
-<select id="voiceKey"><option value="mod+shift+space"></option><option value="alt+shift+v"></option><option value="ctrl+shift+m"></option><option value="off">Off</option></select></label>
+<div class="b">Voice shortcut (in a text box)
+<div class="rec"><button id="scBox" class="key" title="Click, then press your keys">…</button><button id="scOff" class="lnk">Turn off</button><button id="scReset" class="lnk">Reset</button></div>
+<div id="scMsg" class="hint"></div></div>
 <label class="b">Text language
 <select id="language">
 <option value="auto">Auto-detect</option>
@@ -28,5 +36,6 @@ small{color:#6b7280;display:block;margin-top:10px;line-height:1.4}
 <option value="es">Spanish</option>
 </select></label>
 <small>Checked with the free LanguageTool service. Your text is sent to api.languagetool.org, so avoid confidential text. Voice: speak Bangla, text is typed in English (audio goes to Chrome speech recognition, text to MyMemory for translation).</small>
+<script src="shortcut.js"></script>
 <script src="popup.js"></script>
 </body></html>
