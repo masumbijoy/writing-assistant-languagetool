@@ -18,7 +18,7 @@ A Manifest V3 Chrome extension that checks spelling, grammar and style as you ty
 ./build.sh
 ```
 
-Creates `dist/writing-assistant/` (only the extension files) and `dist/writing-assistant-<version>.zip`.
+Creates `dist/writing-assistant/` (only the extension files) and `dist/writing-assistant-<version>.zip`. Each build stamps its time into the version name, e.g. `1.1.1 (build 2026-11-25 16:46)`, shown on `chrome://extensions`, under the popup title, and in the mic tooltip, so you can tell which build is loaded.
 
 ## Install (developer mode)
 

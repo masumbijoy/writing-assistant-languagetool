@@ -384,7 +384,7 @@
     mic.style.display = 'flex';
     mic.className = 'mic ' + (voiceState === 'listening' ? 'on' : voiceState === 'busy' ? 'busy' : '');
     const sc = voiceShortcut ? ` (${voiceShortcut})` : '';
-    mic.title = voiceState === 'listening' ? `Listening... click to stop${sc}` : voiceState === 'busy' ? 'Translating...' : `Speak Bangla - types English${sc}`;
+    mic.title = voiceState === 'listening' ? `Listening... click to stop${sc}` : voiceState === 'busy' ? 'Translating...' : `Speak Bangla - types English${sc} · v${VERSION}`;
     const mw = mic.offsetWidth || 22, mh = mic.offsetHeight || 22;
     const cs = getComputedStyle(active);
     const lh = parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) || 16) * 1.3;
@@ -427,6 +427,7 @@
     else { const r = document.createRange(); r.selectNodeContents(el); r.collapse(false); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); before = cur.text; }
     document.execCommand('insertText', false, prepInsert(text, before));
   }
+  const VERSION = (() => { try { const m = chrome.runtime.getManifest(); return m.version_name || m.version; } catch (_) { return '?'; } })();
   let voiceShortcut = '';
   try { chrome.runtime.sendMessage({ type: 'getShortcut' }, r => { if (!chrome.runtime.lastError && r) voiceShortcut = r.shortcut || ''; }); } catch (_) {}
   // keyboard shortcut from background.js: start in the focused field of this frame, or stop if this frame is listening
