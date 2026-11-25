@@ -172,3 +172,4 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     .catch(e => sendResponse({ ok: false, error: e.name === 'AbortError' ? 'Check timed out' : e.message === 'rate' ? 'Rate limit, keep typing to retry' : 'Check failed' }));
   return true;
 });
+

@@ -9,7 +9,7 @@ A Manifest V3 Chrome extension that checks spelling, grammar and style as you ty
 - **Badge + panel** showing the issue count, with per-item fixes and **Fix all**.
 - **Professional & polite tone** rules (English only): informal words → formal, contractions → full forms, softer requests, adds "please" to bare imperatives.
 - **Picky mode** (LanguageTool `level=picky`) and optional **auto-fix of spelling** mistakes.
-- **Voice input**: speak Bangla (bn-BD / bn-IN), English text is typed at the cursor (Chrome speech recognition + MyMemory translation).
+- **Voice input**: speak Bangla (bn-BD / bn-IN), English text is typed at the cursor (Chrome speech recognition + MyMemory translation). Click the blue mic, or press **⌘⇧Space** (Mac) / **Ctrl+Shift+Space** (Windows/Linux) in a text field to start and stop. Pick another shortcut, or turn it off, in the popup.
 - Language: auto-detect, English (US/UK), German, French, Spanish. Mostly non-Latin text is skipped in auto mode.
 
 ## Build
@@ -18,7 +18,7 @@ A Manifest V3 Chrome extension that checks spelling, grammar and style as you ty
 ./build.sh
 ```
 
-Creates `dist/writing-assistant/` (only the extension files) and `dist/writing-assistant-<version>.zip`.
+Creates `dist/writing-assistant/` (only the extension files) and `dist/writing-assistant-<version>.zip`. The version number is shown on `chrome://extensions`, under the popup title, and in the mic tooltip, so you can tell which build is loaded.
 
 ## Install (developer mode)
 

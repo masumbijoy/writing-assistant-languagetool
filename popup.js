@@ -1,4 +1,5 @@
 const $ = id => document.getElementById(id);
+{ const m = chrome.runtime.getManifest(); $('ver').textContent = 'v' + m.version; }
 chrome.storage.sync.get(null, s => {
   for (const k of ['enabled', 'tone', 'picky', 'autoFix']) $(k).checked = s[k] === undefined ? k !== 'autoFix' : s[k];
   $('voiceLang').value = s.voiceLang || 'bn-BD';
@@ -22,3 +23,11 @@ chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
     chrome.storage.sync.set({ disabledSites: list });
   }));
 });
+
+
+// voice shortcut choices (labels follow the platform's keys)
+const MAC = /Mac|iPhone|iPad/.test(navigator.platform);
+const KEY_LABELS = { 'mod+shift+space': MAC ? '⌘ Cmd + Shift + Space' : 'Ctrl + Shift + Space', 'alt+shift+v': MAC ? '⌥ Option + Shift + V' : 'Alt + Shift + V', 'ctrl+shift+m': MAC ? '⌃ Control + Shift + M' : 'Ctrl + Shift + M' };
+for (const o of $('voiceKey').options) if (KEY_LABELS[o.value]) o.textContent = KEY_LABELS[o.value];
+chrome.storage.sync.get({ voiceKey: 'mod+shift+space' }, s => { $('voiceKey').value = s.voiceKey; });
+$('voiceKey').addEventListener('change', () => chrome.storage.sync.set({ voiceKey: $('voiceKey').value }));
