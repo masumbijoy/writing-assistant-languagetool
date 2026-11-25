@@ -5,10 +5,12 @@ h1{font-size:15px;margin:0 0 10px}
 label{display:flex;align-items:center;gap:8px;margin:8px 0}
 label.b{display:block}
 select{width:100%;padding:5px;margin-top:4px;box-sizing:border-box}
+[hidden]{display:none!important}
 small{color:#6b7280;display:block;margin-top:10px;line-height:1.4}
 </style></head><body>
 <h1>Writing Assistant</h1>
 <label><input type="checkbox" id="enabled"> Enabled</label>
+<label id="siteRow" hidden><input type="checkbox" id="site"> On this site <span id="host" style="color:#6b7280"></span></label>
 <label><input type="checkbox" id="tone"> Professional &amp; polite tone</label>
 <label><input type="checkbox" id="picky"> Style suggestions (picky mode)</label>
 <label><input type="checkbox" id="autoFix"> Auto-fix spelling mistakes</label>

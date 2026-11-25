@@ -4,7 +4,7 @@ A Manifest V3 Chrome extension that checks spelling, grammar and style as you ty
 
 ## Features
 
-- **Live checking** in `<textarea>`, text/search `<input>` and `contenteditable` editors (Gmail, WhatsApp Web, Slack…). Password fields are skipped.
+- **Live checking** in `<textarea>`, text/search `<input>` and `contenteditable` editors (Gmail, WhatsApp Web, Slack…). Password, card, CVV, one-time-code and similar sensitive fields are skipped.
 - **Inline underlines** colour-coded by type (red = spelling, blue = grammar, purple = style), with a popover of suggestions per issue.
 - **Badge + panel** showing the issue count, with per-item fixes and **Fix all**.
 - **Professional & polite tone** rules (English only): informal words → formal, contractions → full forms, softer requests, adds "please" to bare imperatives.
@@ -16,7 +16,7 @@ A Manifest V3 Chrome extension that checks spelling, grammar and style as you ty
 
 1. Open `chrome://extensions` and turn on **Developer mode**.
 2. Click **Load unpacked** and select this folder.
-3. Use the toolbar popup to toggle features and pick languages.
+3. Use the toolbar popup to toggle features, pick languages, or turn checking off for the current site.
 
 ## Files
 
@@ -30,7 +30,7 @@ A Manifest V3 Chrome extension that checks spelling, grammar and style as you ty
 
 ## Privacy
 
-Text you type in any editable field is sent to `api.languagetool.org` for checking, and voice transcripts are sent to `api.mymemory.translated.net` for translation. Disable the extension (popup → Enabled) on pages with confidential text.
+Text you type in any editable field is sent to `api.languagetool.org` for checking, and voice transcripts are sent to `api.mymemory.translated.net` for translation. Turn it off for a site (popup → On this site) or globally (popup → Enabled) where you type confidential text.
 
 ## Limits
 

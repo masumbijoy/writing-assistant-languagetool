@@ -1,10 +1,11 @@
 {
   "manifest_version": 3,
   "name": "Writing Assistant",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Checks spelling, grammar and style as you type in any text box, with one-click fixes.",
   "permissions": [
-    "storage"
+    "storage",
+    "activeTab"
   ],
   "host_permissions": [
     "https://api.languagetool.org/*",

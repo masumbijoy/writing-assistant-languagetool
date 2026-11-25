@@ -1,9 +1,14 @@
 (() => {
-  let settings = { enabled: true, picky: true, autoFix: false, tone: true, voiceLang: 'bn-BD', language: 'auto' };
+  let settings = { enabled: true, picky: true, autoFix: false, tone: true, voiceLang: 'bn-BD', language: 'auto', disabledSites: [] };
+  // the top page's host, also inside cross-origin iframes, so "off on this site" covers embedded editors too
+  const SITE = (() => {
+    try { const a = location.ancestorOrigins; return new URL(a && a.length ? a[a.length - 1] : location.href).hostname; } catch (_) { return location.hostname; }
+  })();
+  const isOn = () => settings.enabled && !(settings.disabledSites || []).includes(SITE);
   chrome.storage.sync.get(settings, s => { settings = { ...settings, ...s }; });
   chrome.storage.onChanged.addListener(ch => {
     for (const k in ch) settings[k] = ch[k].newValue;
-    if (!settings.enabled) { matches = []; hideUI(); } else if (active) schedule(300);
+    if (!isOn()) { matches = []; hideUI(); } else if (active) schedule(300);
   });
 
   let active = null, timer = null, matches = [], seq = 0, applying = false, busy = false, status = '';
@@ -14,6 +19,12 @@
   const isEditable = el => el && (el.tagName === 'TEXTAREA' ||
     (el.tagName === 'INPUT' && ['text', 'search', ''].includes((el.getAttribute('type') || '').toLowerCase())) ||
     el.isContentEditable);
+  // never send card numbers, one-time codes, IDs and similar fields to the checking service
+  const SENSITIVE_AC = /cc-|one-time-code|password|transaction|bday|username|email|tel/i;
+  const SENSITIVE_NAME = /card|cvv|cvc|ccv|ssn|social.?sec|otp|passcode|iban|swift|routing|account.?(no|num)|\bpin\b|tax.?id|passport/i;
+  const isSensitive = el => el.type === 'password' || SENSITIVE_AC.test(el.getAttribute('autocomplete') || '') ||
+    /numeric|decimal|tel|email/i.test(el.getAttribute('inputmode') || '') ||
+    SENSITIVE_NAME.test([el.name, el.id, el.getAttribute('aria-label'), el.getAttribute('placeholder')].filter(Boolean).join(' '));
 
   // ---------- text <-> DOM mapping ----------
   function blockOf(node, rootEl) {
@@ -184,11 +195,11 @@
   // ---------- checking ----------
   function schedule(delay = 900) {
     clearTimeout(timer);
-    if (!settings.enabled || !active) return;
+    if (!isOn() || !active) return;
     timer = setTimeout(runCheck, delay);
   }
   function runCheck() {
-    if (!active || !settings.enabled || busy) return;
+    if (!active || !isOn() || busy) return;
     const { text } = extract(active);
     if (text.trim().length < 3) { matches = []; status = ''; render(); return; }
     if (text.length > 19000) { status = 'Text too long'; render(); return; }
@@ -299,7 +310,7 @@
 
   let rectCache = [];
   function render() {
-    if (!active || !settings.enabled) return hideUI();
+    if (!active || !isOn()) return hideUI();
     ensureUI();
     revalidate();
     const box = active.getBoundingClientRect();
@@ -473,10 +484,10 @@
   document.addEventListener('focusin', e => {
     const el = e.target;
     if (host && e.composedPath().includes(host)) return;
-    if (!isEditable(el) || el.type === 'password') return;
+    if (!isEditable(el) || isSensitive(el)) return;
     if (el === active) return;
     active = el; matches = []; status = ''; hideUI();
-    if (settings.enabled) { ensureUI(); schedule(300); }
+    if (isOn()) { ensureUI(); schedule(300); }
   }, true);
   document.addEventListener('input', e => {
     if (e.target !== active || applying) return;
@@ -501,5 +512,5 @@
   document.addEventListener('keyup', () => { if (active) schedRender(); }, true);
   addEventListener('scroll', schedRender, true);
   addEventListener('resize', schedRender);
-  setInterval(() => { if (active && matches.length) schedRender(); }, 500);
+  setInterval(() => { if (active && matches.length && !document.hidden) schedRender(); }, 500);
 })();

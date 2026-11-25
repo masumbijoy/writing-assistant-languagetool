@@ -23,7 +23,7 @@ const PHRASES = [
   ['send me', 'could you please send me', 'More polite request'],
   ['tell me', 'could you please let me know', 'More polite request'],
   ['show me', 'could you please show me', 'More polite request'],
-  ['i want', 'I would like', 'More polite: "I would like"'], ['i need', 'I would need', 'More polite: "I would need"'],
+  ['i want', 'I would like', 'More polite: "I would like"'],
   ['can you', 'could you', 'More polite: "could you"'], ['you must', 'you may want to', 'Softer, more polite'],
   ['you should', 'you may wish to', 'Softer, more polite'], ['you have to', 'you may need to', 'Softer, more polite'],
   ['do it', 'please proceed', 'More polite'], ['hurry up', 'please prioritise this when possible', 'More polite'],
@@ -59,6 +59,8 @@ function toneMatches(text) {
   while ((m = PHRASE_RE.exec(text))) {
     const p = PHRASE_MAP.get(m[1].toLowerCase().replace(/’/g, "'"));
     if (!p) continue;
+    // "u"/"ur" text-speak: skip capitals and abbreviations such as "U.S." or "U-turn"
+    if (/^(u|ur)$/.test(p[0]) && (/\p{Lu}/u.test(m[1]) || /^[.\-]\p{L}/u.test(text.slice(m.index + m[1].length, m.index + m[1].length + 2)))) continue;
     // already polite? "Please send me ..." should not become "Please could you please send me ..."
     if (/^(could you|please|i would)/i.test(p[1]) && /(please|kindly)\s+$/i.test(text.slice(Math.max(0, m.index - 12), m.index))) continue;
     phrases.push({ offset: m.index, length: m[1].length, message: p[2], issueType: 'style', replacements: [matchCase(m[1], p[1])] });
@@ -132,10 +134,13 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
 
   const ctl = new AbortController();
   const to = setTimeout(() => ctl.abort(), 15000);
+  const lang = msg.language || 'auto';
+  const params = { text: msg.text, language: lang, level: msg.picky ? 'picky' : 'default' };
+  if (lang === 'auto') params.preferredVariants = 'en-US'; // the API rejects preferredVariants (HTTP 400) unless language=auto
   fetch('https://api.languagetool.org/v2/check', {
     method: 'POST', signal: ctl.signal,
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ text: msg.text, language: msg.language || 'auto', level: msg.picky ? 'picky' : 'default', preferredVariants: 'en-US' })
+    body: new URLSearchParams(params)
   })
     .then(r => { clearTimeout(to); if (!r.ok) throw new Error(r.status === 429 ? 'rate' : 'http'); return r.json(); })
     .then(j => {
