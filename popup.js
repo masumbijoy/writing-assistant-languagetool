@@ -1,6 +1,14 @@
 const $ = id => document.getElementById(id);
 { const m = chrome.runtime.getManifest(); $('ver').textContent = 'v' + m.version; }
-$('close').addEventListener('click', () => window.close());
+// shown as a rounded panel inside the page (panel.js) or as a small window on pages without it
+const PANEL = new URLSearchParams(location.search).has('panel');
+const closeMe = () => PANEL ? parent.postMessage({ wa: 'close' }, '*') : window.close();
+$('close').addEventListener('click', closeMe);
+if (PANEL) {
+  document.documentElement.classList.add('panel');
+  const report = () => parent.postMessage({ wa: 'size', h: Math.ceil(document.body.getBoundingClientRect().height) }, '*');
+  new ResizeObserver(report).observe(document.body); report();
+}
 chrome.storage.sync.get(null, s => {
   for (const k of ['enabled', 'tone', 'picky', 'autoFix']) $(k).checked = s[k] === undefined ? k !== 'autoFix' : s[k];
   $('voiceLang').value = s.voiceLang || 'bn-BD';
@@ -52,7 +60,7 @@ for (const r of RECORDERS) {
 }
 document.addEventListener('keydown', e => {
   const r = recording;
-  if (!r) return;
+  if (!r) { if (e.key === 'Escape') closeMe(); return; }
   e.preventDefault(); e.stopPropagation();
   if (e.key === 'Escape') { current(r, k => show(r, k)); return hint(r, ''); }
   if (['Control', 'Alt', 'Shift', 'Meta', 'OS', 'CapsLock', 'Fn'].includes(e.key)) return; // wait for the main key

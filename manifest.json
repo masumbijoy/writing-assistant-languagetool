@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Writing Assistant",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "description": "Checks spelling, grammar and style as you type in any text box, with one-click fixes.",
   "permissions": [
     "storage",
@@ -21,14 +21,14 @@
       ],
       "js": [
         "shortcut.js",
-        "content.js"
+        "content.js",
+        "panel.js"
       ],
       "all_frames": true,
       "run_at": "document_idle"
     }
   ],
   "action": {
-    "default_popup": "popup.html",
     "default_title": "Writing Assistant",
     "default_icon": {
       "16": "icons/icon16.png",
@@ -42,5 +42,15 @@
     "32": "icons/icon32.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "popup.html"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
 }

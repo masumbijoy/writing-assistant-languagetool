@@ -35,6 +35,7 @@ Creates `dist/writing-assistant/` (only the extension files) and `dist/writing-a
 | `background.js` | Service worker: calls LanguageTool, filters unreliable spelling hits, adds tone rules, proxies translation |
 | `shortcut.js` | Shared helpers to record, match and display the custom voice shortcut |
 | `content.js` | Text extraction/DOM mapping, underline geometry, safe replacement in plain and rich editors, badge/panel/popover UI (Shadow DOM), voice input |
+| `panel.js` | Opens the settings as a rounded floating panel in the page when you click the toolbar icon (small window on chrome:// pages) |
 | `popup.html` / `popup.js` | Settings UI stored in `chrome.storage.sync` |
 | `icons/` | 16/32/48/128 px icons |
 

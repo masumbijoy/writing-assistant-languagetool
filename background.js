@@ -173,3 +173,10 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   return true;
 });
 
+
+// toolbar icon: open the settings panel in the page (rounded corners); on pages without the
+// content script (chrome:// pages, the Web Store, tabs opened before install) open a small window instead
+chrome.action.onClicked.addListener(tab => {
+  chrome.tabs.sendMessage(tab.id, { type: 'togglePanel' }, { frameId: 0 })
+    .catch(() => chrome.windows.create({ url: 'popup.html?window=1', type: 'popup', width: 386, height: 560 }));
+});
