@@ -45,7 +45,7 @@ const RECORDERS = [
   { key: 'voiceKeyBn', def: SC_DEFAULT_BN, box: 'scBoxBn', off: 'scOffBn', reset: 'scResetBn', msg: 'scMsgBn', other: 'voiceKey' }
 ];
 let recording = null; // the recorder waiting for keys
-const hint = (r, t, err) => { $(r.msg).textContent = t || ''; $(r.msg).className = 'hint' + (err ? ' err' : ''); };
+const hint = (r, t, err) => { $(r.msg).textContent = t || ''; $(r.msg).className = 'muted' + (err ? ' err' : ''); };
 const show = (r, k) => { $(r.box).textContent = scLabel(k); $(r.box).classList.remove('on'); if (recording === r) recording = null; };
 const current = (r, cb) => chrome.storage.sync.get({ [r.key]: r.def }, s => cb(s[r.key]));
 const save = (r, k) => chrome.storage.sync.set({ [r.key]: k }, () => { show(r, k); hint(r, k === 'off' ? 'Shortcut is off.' : 'Saved. Reload open tabs to use it there.'); });

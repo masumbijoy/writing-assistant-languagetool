@@ -1,59 +1,44 @@
 <!doctype html>
 <html><head><meta charset="utf-8"><meta name="color-scheme" content="light dark"><style>
-:root{--bg:#fff;--fg:#111827;--label:#4b5563;--muted:#6b7280;--line:#e5e7eb;--field:#fff;--field-line:#d1d5db;--note:#f3f4f6;--accent:#2563eb;--accent-soft:#eff6ff;--err:#dc2626;--ok:#16a34a}
-@media (prefers-color-scheme:dark){:root{--bg:#1f1f23;--fg:#f3f4f6;--label:#c4c4cc;--muted:#9ca3af;--line:#34343a;--field:#2a2a2f;--field-line:#3f3f46;--note:#2a2a2f;--accent:#3b82f6;--accent-soft:#1e293b;--err:#f87171;--ok:#4ade80}}
-*{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--fg)}
-html.panel,html.panel body{overflow:hidden}
-body{font:14px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;width:370px}
-html.panel body{width:390px}
+/* same look as the WP Image Grabber panel (github.com/masumbijoy/wp-image-grabber, grabber.js) */
+*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
 [hidden]{display:none!important}
-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 12px;border-bottom:1px solid var(--line)}
-h1{font-size:17px;font-weight:700;margin:0;display:flex;align-items:baseline;gap:8px}
-#ver{font-size:13px;font-weight:400;color:var(--muted)}
-.x{border:0;background:none;color:var(--label);font-size:22px;line-height:1;cursor:pointer;padding:0 2px}
-.x:hover{color:var(--fg)}
-main{padding:12px 16px 16px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;margin-bottom:12px}
-.f{display:flex;flex-direction:column;gap:5px;min-width:0}
-.f.full{grid-column:1/-1}
-.f>span{font-size:13px;color:var(--label)}
-select,.key{width:100%;font:inherit;font-size:14px;color:var(--fg);background:var(--field);border:1px solid var(--field-line);border-radius:8px;padding:8px 10px;outline:none}
-select{appearance:none;-webkit-appearance:none;padding-right:28px;cursor:pointer;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%239ca3af' stroke-width='1.6'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 10px center}
-select:focus,.key:focus-visible{border-color:var(--accent)}
-.key{cursor:pointer;text-align:center;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
-.key.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
-.acts{display:flex;gap:12px}
-.lnk{border:0;background:none;color:var(--accent);cursor:pointer;font:inherit;font-size:12px;padding:0}
-.lnk:hover{text-decoration:underline}
-.hint{font-size:11.5px;color:var(--muted)}
-.hint:empty{display:none}
-.hint.err{color:var(--err)}
-.checks{display:flex;flex-direction:column;gap:9px;margin:2px 0 14px}
-.checks label{display:flex;align-items:center;gap:10px;cursor:pointer}
-.checks input{width:17px;height:17px;margin:0;accent-color:var(--accent);cursor:pointer;flex:none}
-#host{color:var(--muted)}
-.note{background:var(--note);border-radius:8px;padding:10px 12px;font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--label)}
+html,body{margin:0;background:#fff}
+body{width:390px;color:#1c1c1e;font-size:13px}
+html.panel,html.panel body{overflow:hidden}
+.h{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid #e6e6ea;background:#fff}
+.h b{font-size:14px}
+.v{font-weight:400;font-size:11px;color:#888;margin-left:4px}
+.x{border:0;background:none;font-size:18px;cursor:pointer;color:#666}
+.b{padding:12px 14px}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px}
+label{display:block;font-size:11px;color:#555;margin-bottom:2px}
+select,.key{width:100%;padding:6px 8px;border:1px solid #c8c8ce;border-radius:6px;font-size:13px;background:#fff;color:#1c1c1e}
+.key{cursor:pointer;text-align:left;font-family:ui-monospace,Menlo,monospace}
+.key.on{border-color:#1a73e8;color:#1a73e8}
+.full{grid-column:1/-1}
+.chk{display:flex;gap:6px;align-items:center;font-size:12px;color:#333;margin:2px 0}
+.chk label{margin:0;font-size:12px;color:#333}
+.chk #host{color:#888}
+.acts{display:flex;gap:10px;margin-top:3px}
+.lnk{border:0;background:none;padding:0;color:#1a73e8;font-size:11px;cursor:pointer}
+.muted{color:#777;font-size:11px;margin-top:6px}
+.muted:empty{display:none}
+.muted.err{color:#d93025}
+.log{margin-top:10px;background:#f6f6f8;border-radius:6px;padding:6px 8px;font:11px/1.45 ui-monospace,Menlo,monospace;white-space:pre-wrap;color:#333}
+@media (prefers-color-scheme:dark){
+  html,body,.h{background:#1f1f23;color:#eee}.h{border-color:#3a3a40}
+  select,.key{background:#2a2a2f;color:#eee;border-color:#44444a}
+  label,.chk label{color:#bbb}.log{background:#2a2a2f;color:#ddd}.muted{color:#999}.x{color:#aaa}
+  .muted.err{color:#f28b82}
+}
 </style></head><body>
-<header>
-  <h1>Writing Assistant <span id="ver"></span></h1>
-  <button class="x" id="close" title="Close">×</button>
-</header>
-<main>
-  <div class="checks">
-    <label><input type="checkbox" id="enabled"> Enabled</label>
-    <label id="siteRow" hidden><input type="checkbox" id="site"> On this site <span id="host"></span></label>
-    <label><input type="checkbox" id="tone"> Professional &amp; polite tone</label>
-    <label><input type="checkbox" id="picky"> Style suggestions (picky mode)</label>
-    <label><input type="checkbox" id="autoFix"> Auto-fix spelling mistakes</label>
-  </div>
-
-  <div class="grid">
-    <label class="f"><span>Voice language</span>
-      <select id="voiceLang"><option value="bn-BD">Bangla (BD)</option><option value="bn-IN">Bangla (IN)</option></select></label>
-    <label class="f"><span>Text language</span>
+<div class="h"><b>Writing Assistant <span class="v" id="ver"></span></b><button class="x" id="close" title="Close">×</button></div>
+<div class="b">
+  <div class="g">
+    <div><label for="voiceLang">Voice language</label>
+      <select id="voiceLang"><option value="bn-BD">Bangla (Bangladesh)</option><option value="bn-IN">Bangla (India)</option></select></div>
+    <div><label for="language">Text language</label>
       <select id="language">
         <option value="auto">Auto-detect</option>
         <option value="en-US">English (US)</option>
@@ -61,22 +46,25 @@ select:focus,.key:focus-visible{border-color:var(--accent)}
         <option value="de-DE">German</option>
         <option value="fr">French</option>
         <option value="es">Spanish</option>
-      </select></label>
-
-    <div class="f"><span>Bangla → English</span>
+      </select></div>
+    <div><label>Shortcut: Bangla → English</label>
       <button id="scBox" class="key" title="Click, then press your keys">…</button>
-      <div class="acts"><button id="scOff" class="lnk">Turn off</button><button id="scReset" class="lnk">Reset</button></div>
-    </div>
-    <div class="f"><span>Bangla → Bangla</span>
+      <div class="acts"><button id="scOff" class="lnk">Turn off</button><button id="scReset" class="lnk">Reset</button></div></div>
+    <div><label>Shortcut: Bangla → Bangla</label>
       <button id="scBoxBn" class="key" title="Click, then press your keys">…</button>
-      <div class="acts"><button id="scOffBn" class="lnk">Turn off</button><button id="scResetBn" class="lnk">Reset</button></div>
+      <div class="acts"><button id="scOffBn" class="lnk">Turn off</button><button id="scResetBn" class="lnk">Reset</button></div></div>
+    <div class="full">
+      <div class="chk"><input type="checkbox" id="enabled"><label for="enabled">Enabled</label></div>
+      <div class="chk" id="siteRow" hidden><input type="checkbox" id="site"><label for="site">On this site <span id="host"></span></label></div>
+      <div class="chk"><input type="checkbox" id="tone"><label for="tone">Professional &amp; polite tone</label></div>
+      <div class="chk"><input type="checkbox" id="picky"><label for="picky">Style suggestions (picky mode)</label></div>
+      <div class="chk"><input type="checkbox" id="autoFix"><label for="autoFix">Auto-fix spelling mistakes</label></div>
     </div>
-    <div id="scMsg" class="hint f full"></div>
-    <div id="scMsgBn" class="hint f full"></div>
   </div>
-
-  <div class="note">Voice shortcuts work in any text box. Click a shortcut, then press your keys. Text is checked by api.languagetool.org; voice uses Chrome speech recognition and MyMemory translation.</div>
-</main>
+  <div class="muted" id="scMsg"></div>
+  <div class="muted" id="scMsgBn"></div>
+  <div class="log">Voice shortcuts work in any text box. Click a shortcut, then press your keys. Text is checked by api.languagetool.org; voice uses Chrome speech recognition and MyMemory translation.</div>
+</div>
 <script src="shortcut.js"></script>
 <script src="popup.js"></script>
 </body></html>
