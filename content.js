@@ -449,10 +449,9 @@
     ensureUI(); toggleMic();
   }, true);
   let wantVoice = false, vq = Promise.resolve(), vPending = 0, vRestarts = [], voiceTarget = null;
-  // ---- extension-side voice: used when the site forbids the mic (Permissions-Policy: microphone=()),
-  // or when the page itself is refused; recognition then runs in the extension's offscreen page
+  // ---- extension-side voice: backup only, used when Chrome refuses the page's mic (not-allowed);
+  // recognition then runs in the extension's offscreen page
   let remote = false;
-  const policyBlocked = () => { try { const p = document.permissionsPolicy || document.featurePolicy; return !!p && !p.allowsFeature('microphone'); } catch (_) { return false; } };
   function startRemote() {
     remote = true; wantVoice = true; voiceTarget = active; status = ''; voiceState = 'listening'; render();
     chrome.runtime.sendMessage({ type: 'voiceStart', lang: settings.voiceLang || 'bn-BD' }, res => {
@@ -493,7 +492,7 @@
     if (voiceState) return;
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!active) return;
-    if (!SR || policyBlocked()) return startRemote(); // the site blocks the mic: use the extension's own mic
+    if (!SR) return startRemote(); // same as before: the page's own mic first; the extension's mic only if Chrome refuses it (onerror below)
     voiceTarget = active; wantVoice = true; vRestarts = []; status = '';
     const begin = () => {
       rec = new SR();
